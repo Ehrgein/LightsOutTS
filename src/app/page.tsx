@@ -1,8 +1,5 @@
 import RunScraperButton from "./Components/RunScraperButton";
-import { ReadonlyURLSearchParams } from "next/navigation";
-import puppeteer from "puppeteer";
-import * as cheerio from "cheerio";
-import { resolve } from "path";
+import { runScraper } from "./Utils/runScraper";
 
 interface SearchParams {
   runScrapperButton?: boolean;
@@ -10,7 +7,18 @@ interface SearchParams {
 
 export default function Home({ searchParams }: SearchParams) {
   if (searchParams.runScraperButton) {
-    runScraper();
+    runScraper(
+      "https://www.argentina.gob.ar/enre/estado-del-servicio-electrico-de-edesur"
+    )
+      .then(() => {
+        console.log(
+          "Scraping and saving data completed successfully, please check where the function is called for more details"
+        );
+      })
+      .catch((err) => {
+        console.log("Error occured during scraping");
+        console.log(err);
+      });
   }
 
   return (
@@ -20,46 +28,9 @@ export default function Home({ searchParams }: SearchParams) {
   );
 }
 
-const runScraper = async () => {
-  //launching browser
+// if needed
 
-  const browser = await puppeteer.launch({
-    // headless: false,
-  });
-
-  const page = await browser.newPage();
-
-  const endpoint =
-    "https://www.argentina.gob.ar/enre/estado-del-servicio-electrico-de-edesur";
-
-  await page.goto(endpoint, {
-    waitUntil: "domcontentloaded",
-  });
-  await page.setViewport({ width: 1080, height: 1024 });
-
-  await page.waitForSelector("#cd-login > #btn-mi-argentina");
-
-  const resultMiArgentina = await page.evaluate(() => {
-    const selector = document.querySelector(
-      "#cd-login > #btn-mi-argentina"
-    )?.innerHTML;
-
-    return selector;
-  });
-
-  console.log(resultMiArgentina);
-
-  const handle = await page.waitForSelector("#frame1");
-
-  const frame = await handle?.contentFrame();
-
-  await frame?.waitForSelector("#CortesBT");
-
-  const btn = await frame?.$eval(
-    "#CortesBT > tbody tr",
-    (node) => (node as HTMLElement).innerHTML
-  );
-  console.log(btn);
-
-  // page to scrape
-};
+// const btn2: any = await frame?.evaluate(() => {
+//   const elements = document.querySelectorAll("#CortesBT");
+//   return Array.from(elements).map((element) => element.innerHTML);
+// });

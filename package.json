@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.4.5",
+    "mongodb": "4.1",
+    "mongoose": "^8.2.3",
     "next": "14.0.4",
     "puppeteer": "^22.0.0",
     "react": "^18",
