@@ -10,7 +10,8 @@ export default function Home({ searchParams }: SearchParams) {
     runScraper(
       "https://www.argentina.gob.ar/enre/estado-del-servicio-electrico-de-edesur"
     )
-      .then(() => {
+      .then((req) => {
+        console.log(req);
         console.log(
           "Scraping and saving data completed successfully, please check where the function is called for more details"
         );

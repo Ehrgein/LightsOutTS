@@ -12,9 +12,16 @@ import Outage from "../../../models/Outage";
 export const runScraper = async (endpoint: string) => {
   //launching browser
 
+
+
+
   const browser = await puppeteer.launch({
     //  headless: false,
   });
+
+  const scrapePage = async(endpoint: string) {
+
+  }
 
   const page = await browser.newPage();
 
@@ -111,30 +118,50 @@ export const runScraper = async (endpoint: string) => {
   parseCheerio(newCortesMediaTension, "cortes-mt");
   parseCheerio(newCortesBajaTension, "cortes-bt");
 
-  // const fullData = {
-  //   edesur: {
-  //     programados: outageProviderData.edesur.programados,
-  //     mt: outageProviderData.edesur.mt,
-  //     bt: outageProviderData.edesur.mt,
-  //   },
-  // };
+  const scrapeData = async(endpoint: string, provider: string) => {
 
-  const completeData = outageProviderData.edesur.bt;
+    const {programados, mediaTensionData, bajaTensionData } = await scrapePage(endpoint)
 
-  // const completeData = {
-  //   edesur: {
-  //     programados: outageProviderData.edesur.programados,
-  //     mt: outageProviderData.edesur.mt,
-  //     bt: outageProviderData.edesur.bt,
-  //   },
-  // };
+    const outageProviderData: ProviderIncidenceRecord = {
+      [provider]: {
+        programados: [],
+        mt: [],
+        bt: [],
+      },
+    };
 
+    parseCheerio(newCortesProgramados, "cortes-programados");
+    parseCheerio(newCortesMediaTension, "cortes-mt");
+    parseCheerio(newCortesBajaTension, "cortes-bt");
+
+  }
+
+  const edesurData = {
+    edesur: {
+      programados: outageProviderData.edesur.programados,
+      mt: outageProviderData.edesur.mt,
+      bt: outageProviderData.edesur.mt,
+    },
+  };
+
+  const edenorData = {
+    edenor: {
+      programados: outageProviderData.edenor.programados,
+      mt: outageProviderData.edenor.mt,
+      bt: outageProviderData.edenor.bt,
+    },
+  };
+
+  const combinedData = {
+    ...edenorData,
+    ...edesurData,
+  };
   // DO NOT REMOVE THIS LINE
   await connect();
 
-  console.log(completeData);
+  console.log(combinedData, "complete data edesur");
 
-  await Outage.create(completeData);
+  await Outage.create(combinedData);
 
   browser.close();
 };

@@ -3,13 +3,23 @@ import connect from "@/app/Utils/db";
 import Outage from "../../../../models/Outage";
 import { runScraper } from "@/app/Utils/runScraper";
 
-export const GET = async () => {
+export const GET = async (req: NextRequest) => {
   try {
+    const { searchParams } = new URL(req.url);
+
+    const provider = searchParams.get("provider") || "edesur";
+
     await connect();
 
-    const outages = await Outage.find();
+    const outages = await Outage.findOne();
 
-    return new NextResponse(JSON.stringify(outages));
+    if (!outages) {
+      return new NextResponse("No outages found", { status: 404 });
+    }
+
+    const data = outages[provider as keyof typeof outages];
+
+    return new NextResponse(JSON.stringify(data));
   } catch (error) {
     return new NextResponse("Error in Fetching Posts", { status: 500 });
   }
@@ -17,11 +27,13 @@ export const GET = async () => {
 
 export async function POST(req: NextRequest) {
   const data = await req.json();
+
+  console.log("data", data);
+
   await connect();
 
   try {
     const outageEntry = await Outage.create(data);
-    console.log(outageEntry, "this is the entry");
 
     /* create a new model in the database */
     return NextResponse.json(

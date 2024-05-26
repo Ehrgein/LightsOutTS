@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { Basic } from "next/font/google";
 
 const { Schema } = mongoose;
 
@@ -59,13 +58,26 @@ const outageSchema = new Schema(
   { timestamps: true }
 );
 
+const commentSchema = new Schema({
+  name: String,
+  email: String,
+  text: String,
+  date: String,
+
+})
+
 const mainSchema = new Schema({
   edesur: {
     programados: [OutageDataWithETASchema],
     mt: [OutageDataWithETASchema],
     bt: [BasicOutageDataSchema],
   },
+  edenor: {
+      programados: [OutageDataWithETASchema],
+      mt: [OutageDataWithETASchema],
+      bt: [BasicOutageDataSchema],
+  }
 });
 
 export default mongoose.models.Outage ||
-  mongoose.model("Outage", BasicOutageDataSchema);
+  mongoose.model("Outage", mainSchema)

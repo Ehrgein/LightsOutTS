@@ -1,8 +1,13 @@
 import mongoose from "mongoose";
 
+//asdwow123 pwd
+const newUri = 'mongodb+srv://alek:asdwow123@lightsout.qewrqjg.mongodb.net/edesur_data'
+
 const connect = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(newUri, {
+      dbName: 'edesur_data'
+    });
 
     console.log("connection succesful");
   } catch (err) {
