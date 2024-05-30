@@ -54,7 +54,7 @@ function OutagesModeled() {
       if (modelRef.current && outageData["CAPITAL"]) {
         const scene = modelRef.current;
 
-        console.log(outageData["CAPITAL"]);
+        console.log(outageData);
 
         scene.children.forEach((child) => {
           const childName = child.userData.name.trim().toLowerCase();

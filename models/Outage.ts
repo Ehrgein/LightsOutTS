@@ -36,44 +36,14 @@ const OutageDataWithETASchema = new Schema({
   },
 });
 
-const outageSchema = new Schema(
-  {
-    partido: {
-      type: String,
-      required: true,
-    },
-    localidad: {
-      type: String,
-      required: true,
-    },
-    afectados: {
-      type: Number,
-      required: true,
-    },
-    eta: {
-      type: String,
-      required: true,
-    },
-  },
-  { timestamps: true }
-);
 
-const commentSchema = new Schema({
-  name: String,
-  email: String,
-  text: String,
-  date: String,
-
-})
 
 const mainSchema = new Schema({
   edesur: {
-    programados: [OutageDataWithETASchema],
     mt: [OutageDataWithETASchema],
     bt: [BasicOutageDataSchema],
   },
   edenor: {
-      programados: [OutageDataWithETASchema],
       mt: [OutageDataWithETASchema],
       bt: [BasicOutageDataSchema],
   }

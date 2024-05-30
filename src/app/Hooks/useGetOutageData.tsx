@@ -1,5 +1,7 @@
 import useSWR from "swr";
 
+const apiUrl = "api/outages";
+
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 const useGetOutageData = (provider: string) => {
