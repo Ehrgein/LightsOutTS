@@ -50,6 +50,7 @@ function OutagesModeled() {
       if (modelRef.current && outageData["CAPITAL"]) {
         const scene = modelRef.current;
 
+        // Important: "CAPITAL" is the value for baja tension, but "CAPITAL FEDERAL" is the value for media tension. Perhaps make a type to decide or a condition
         const capitalOutages = outageData["CAPITAL"];
 
         console.log(capitalOutages);
@@ -66,7 +67,7 @@ function OutagesModeled() {
 
           console.log(match);
 
-          let color: THREE.ColorRepresentation = "#6ef78b"; // default color if no match
+          let color: THREE.ColorRepresentation = "#6ef78b"; // default green color if no match
 
           if (match) {
             if (match.afectados >= 35) {
