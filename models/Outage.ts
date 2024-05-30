@@ -38,16 +38,31 @@ const OutageDataWithETASchema = new Schema({
 
 
 
-const mainSchema = new Schema({
+//   const mainSchema = new Schema({
+//     edesur: {
+//       mt: [OutageDataWithETASchema],
+//       bt: [BasicOutageDataSchema],
+//     },
+//     edenor: {
+//         mt: [OutageDataWithETASchema],
+//         bt: [BasicOutageDataSchema],
+//     },
+//   },
+//   { timestamps: true } 
+// );
+
+const mainSchema = new mongoose.Schema({
   edesur: {
     mt: [OutageDataWithETASchema],
     bt: [BasicOutageDataSchema],
   },
   edenor: {
-      mt: [OutageDataWithETASchema],
-      bt: [BasicOutageDataSchema],
+    mt: [OutageDataWithETASchema],
+    bt: [BasicOutageDataSchema],
   }
-});
+}, { timestamps: true });
+
+
 
 export default mongoose.models.Outage ||
   mongoose.model("Outage", mainSchema)

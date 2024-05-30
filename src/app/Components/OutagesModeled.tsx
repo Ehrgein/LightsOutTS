@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import useGetOutageData from "../Hooks/useGetOutageData";
 import { BasicOutageData, OutageDataWithETA } from "../Types/types";
-import { Canvas, useFrame, useThree, useLoader } from "@react-three/fiber";
+import { Canvas, useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls, Stats } from "@react-three/drei";
 import * as THREE from "three";
@@ -11,9 +11,9 @@ type recordedData = {
 };
 
 function OutagesModeled() {
-  const { data, error, isLoading } = useGetOutageData("edenor");
+  const { data, error, isLoading } = useGetOutageData("edesur");
 
-  console.log();
+  console.log(data);
 
   const groupedData = () => {
     if (!data) return null;
@@ -25,7 +25,7 @@ function OutagesModeled() {
 
     // Iterating over the data so that we can decide if we need programmed outages, low tension, etc.
     bt.forEach((item: BasicOutageData) => {
-      // destructuring the particular item and getting all values
+      // destructuring the particular item and getting all properties
       const { partido, localidad, afectados } = item;
 
       if (!newOutageData[partido]) {
@@ -37,8 +37,6 @@ function OutagesModeled() {
       newOutageData[partido].push({ localidad, afectados });
     });
 
-    console.log(newOutageData, "this is the data we are sendnig");
-
     return newOutageData;
   };
 
@@ -48,47 +46,41 @@ function OutagesModeled() {
     const gltf = useLoader(GLTFLoader, "MAPAEdesurCapital.glb");
     const modelRef = useRef<THREE.Group>(null);
 
-    let matchedCount = 0;
-
     useEffect(() => {
       if (modelRef.current && outageData["CAPITAL"]) {
         const scene = modelRef.current;
 
-        console.log(outageData);
+        const capitalOutages = outageData["CAPITAL"];
+
+        console.log(capitalOutages);
 
         scene.children.forEach((child) => {
+          if (!(child instanceof THREE.Mesh)) return;
+
           const childName = child.userData.name.trim().toLowerCase();
 
-          const match = outageData["CAPITAL"].find(
+          const match = capitalOutages.find(
             (incident: any) =>
               incident.localidad.trim().toLowerCase() === childName
           );
 
-          let color: THREE.ColorRepresentation | undefined;
+          console.log(match);
+
+          let color: THREE.ColorRepresentation = "#6ef78b"; // default color if no match
 
           if (match) {
-            console.log(
-              `Match found for ${childName}: ${match.afectados} afectados`
-            );
-            matchedCount++;
-
             if (match.afectados >= 35) {
-              color = "red";
-            } else if (match.afectados >= 6) {
-              color = "yellow";
-            } else if (match.afectados <= 5) {
-              color = "green";
-            }
-
-            if (child instanceof THREE.Mesh) {
-              const material = child.material.clone();
-
-              material.color.set(color);
-              material.needsUpdate = true; // Ensure the material updates
-
-              child.material = material;
+              color = "#f65555"; // red - plenty affected
+            } else if (match.afectados >= 3) {
+              color = "#FFFF00"; // yellow - some affected
             }
           }
+
+          const material = child.material.clone();
+          material.color.set(color);
+          material.needsUpdate = true; // Unsure if this is required, seems to work without it
+
+          child.material = material;
         });
       }
     }, [gltf, outageData]);
@@ -110,14 +102,14 @@ function OutagesModeled() {
 
           {/* Mesh with standard material */}
 
-          <mesh
+          {/* <mesh
             scale={[10, 10, 0]}
             rotation={[-Math.PI / 2, 0, 0]}
             position={[0, -2, 0]}
           >
             <planeGeometry args={[1, 1, 1]} />
             <meshStandardMaterial color="darkgreen" side={THREE.DoubleSide} />
-          </mesh>
+          </mesh> */}
           {outageData && <Model />}
 
           <OrbitControls />

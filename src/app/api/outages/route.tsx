@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import connect from "@/app/Utils/db";
 import Outage from "../../../../models/Outage";
-import { runScraper } from "@/app/Utils/runScraper";
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -11,7 +10,9 @@ export const GET = async (req: NextRequest) => {
 
     await connect();
 
-    const outages = await Outage.findOne();
+    const outages = await Outage.findOne().sort({ createdAt: -1 });
+
+    console.log(outages);
 
     if (!outages) {
       return new NextResponse("No outages found", { status: 404 });

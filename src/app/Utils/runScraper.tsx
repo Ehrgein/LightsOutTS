@@ -1,11 +1,6 @@
 import puppeteer from "puppeteer";
 import * as cheerio from "cheerio";
-import {
-  ProviderIncidenceRecord,
-  OutageDataWithETA,
-  BasicOutageData,
-  ReportType,
-} from "../Types/types";
+import { ProviderIncidenceRecord, ReportType } from "../Types/types";
 import Outage from "../../../models/Outage";
 import connect from "@/app/Utils/db";
 
@@ -60,7 +55,10 @@ function parseCheerio(
   });
 }
 
-export const runScraper = async (endpoint: string) => {
+async function scrapeProviderData(
+  endpoint: string,
+  provider: "edesur" | "edenor"
+) {
   console.log("hello, we are scraping");
   //launching browse
 
@@ -76,6 +74,7 @@ export const runScraper = async (endpoint: string) => {
 
   await page.goto(endpoint, {
     waitUntil: "domcontentloaded",
+    timeout: 600000,
   });
   await page.setViewport({ width: 1080, height: 1024 });
   const handle = await page.waitForSelector("#frame1");
@@ -90,7 +89,7 @@ export const runScraper = async (endpoint: string) => {
     parseCheerio(
       newCortesMediaTension,
       "cortes-mt",
-      "edesur",
+      provider,
       outageProviderData
     );
   }
@@ -98,12 +97,29 @@ export const runScraper = async (endpoint: string) => {
     parseCheerio(
       newCortesBajaTension,
       "cortes-bt",
-      "edesur",
+      provider,
       outageProviderData
     );
   }
 
-  const combinedData = { ...outageProviderData };
+  await browser.close();
+
+  return outageProviderData[provider];
+}
+
+export const runScraper = async () => {
+  const endpointEdesur =
+    "https://www.argentina.gob.ar/enre/estado-del-servicio-electrico-de-edesur";
+  const endpointEdenor =
+    "https://www.argentina.gob.ar/enre/estado-del-servicio-electrico-de-edenor";
+
+  const edesurData = await scrapeProviderData(endpointEdesur, "edesur");
+  const edenorData = await scrapeProviderData(endpointEdenor, "edenor");
+
+  const combinedData: ProviderIncidenceRecord = {
+    edesur: edesurData,
+    edenor: edenorData,
+  };
 
   // DO NOT REMOVE THIS LINE
   await connect();
@@ -112,6 +128,4 @@ export const runScraper = async (endpoint: string) => {
   console.log(combinedData.edenor.bt, "complete data edenor");
 
   await Outage.create(combinedData);
-
-  browser.close();
 };
