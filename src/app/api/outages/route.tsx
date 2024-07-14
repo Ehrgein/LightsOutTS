@@ -12,8 +12,6 @@ export const GET = async (req: NextRequest) => {
 
     const outages = await Outage.findOne().sort({ createdAt: -1 });
 
-    console.log(outages);
-
     if (!outages) {
       return new NextResponse("No outages found", { status: 404 });
     }
@@ -28,8 +26,6 @@ export const GET = async (req: NextRequest) => {
 
 export async function POST(req: NextRequest) {
   const data = await req.json();
-
-  console.log("data", data);
 
   await connect();
 
